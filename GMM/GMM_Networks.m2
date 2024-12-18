@@ -1,4 +1,4 @@
-load("../PhylogeneticNetworks.m2")
+try load("../PhylogeneticNetworks.m2")
 
 
 -- N, a phylogenetic network
@@ -17,7 +17,7 @@ gmmParameterRing (Number, Digraph) := Ring => opts -> (k, N) -> (
 
 -- k, number of states of the GMM model
 -- n, number of leaves of the phylogenetic network on which the model is to be defined
-pRing = method()
+pRing = method(Options => {})
 pRing (Number, Number) := Ring => opts -> (k, n) -> QQ[p_(n:0)..p_(n:k-1)]
 
 
@@ -64,7 +64,7 @@ gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reti
 	T2 := deleteEdges(N, {reticulationEdges_1});
 	int := sort internalVertices(T1);
 	L := sort leaves(graph(graph(T1)));
-	root := (delete(null, apply(int, i -> if degreeIn(N, i) == 0 then i)))_0;
+	rho := (delete(null, apply(int, i -> if degreeIn(N, i) == 0 then i)))_0;
 	n := #L;
 
 	-- make source and target rings
@@ -92,7 +92,7 @@ flat = method(Options => {})
 flat (List, List, Ring) := Matrix => opts -> (A, B, S) -> (
 	
 	-- compute k and n from the ring S
-	k := (last baseName (last gens S))_0;
+	k := (last baseName (last gens S))_0 + 1;
 	n := #(last baseName S_0);
 
 	-- make the set of all joint states of the leaves in A and leaves in B

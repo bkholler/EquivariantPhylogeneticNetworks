@@ -65,3 +65,15 @@ probabilisticMembershipTest = (t, f, phi) -> (
 	)
 
 
+-- builds a polynomial in the minors of flat1 and flat2 correspond to inds with coefficients given by coeffs
+fillTemplate = (inds, coeffs, flat1, flat2) -> (
+
+  return sum for i from 0 to #inds - 1 list(
+	
+    ind  = inds_i;
+    (R1, C1) = ind_0;
+    (R2, C2)= ind_1;
+
+    (coeffs_i)*(det(flat1_C1^R1))*(det(flat2_C2^R2))
+    );
+  ); 

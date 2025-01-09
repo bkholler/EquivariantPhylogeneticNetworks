@@ -1,5 +1,5 @@
 try load("../PhylogeneticNetworks.m2")
-
+needsPackage "Probability"
 
 -- N, a phylogenetic network
 -- Creates the ring of parameters whose variables are the root parameters and entries of the transition matrices
@@ -11,7 +11,7 @@ gmmParameterRing (Number, Digraph) := Ring => opts -> (k, N) -> (
 	r := getSymbol opts.rVariableName; 
 	m := getSymbol opts.mVariableName;
 
-	return R := QQ[apply(k, i -> r_i) | apply(indSet, i -> m_i)];
+	return R := QQ[s, t, apply(k, i -> r_i) | apply(indSet, i -> m_i)];
 	);
 
 
@@ -24,7 +24,7 @@ pRing (Number, Number) := Ring => opts -> (k, n) -> QQ[p_(n:0)..p_(n:k-1)]
 -- k, the number of states for the general Markov model
 -- rho, a vertex of T, representing the root of T
 -- T, a digraph, representing a phylogenetic tree
-gmmTreeParametrization = method(Options => {SourceRing => null})
+gmmTreeParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
 gmmTreeParametrization (Number, Digraph) := RingMap => opts -> (k, T) -> (
 
 	-- compute internal vertices, leaves, and root
@@ -48,6 +48,20 @@ gmmTreeParametrization (Number, Digraph) := RingMap => opts -> (k, T) -> (
 				)
 			);
 
+	if not opts.UseStochasticParameters then return map(R, S, phi);
+
+	subRules := flatten for e in edges(T) list(
+
+		for i from 0 to k-1 list(
+
+			m_(e, i, k-1) => (1 - sum apply(k-1, j -> m_(e, i, j)))
+		)
+	);
+
+	subRules = append(subRules, r_(k-1) => 1 - sum apply(k-1, i -> r_i));
+
+	phi = apply(phi, i -> sub(i, subRules));
+	
 	return map(R, S, phi)
 	);
 
@@ -55,7 +69,7 @@ gmmTreeParametrization (Number, Digraph) := RingMap => opts -> (k, T) -> (
 -- k, the number of states for the general Markov model
 -- N, a digraph, representing a phylogenetic network
 -- reticulationEdges, a list of edges of N, in the form {i, j}, representing the reticulation edges of N
-gmmNetworkParametrization = method(Options => {SourceRing => null})
+gmmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
 gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reticulationEdges, N) -> (
 
 	-- compute internal vertices, leaves, and root
@@ -77,9 +91,23 @@ gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reti
 
 				states := hashTable(apply(L, leafState, (i,j) -> i => j) | apply(int, intState, (i,j) -> i =>j));
 
-				(r_(states#rho))*(product(apply(edges(T1), e -> m_(e, states#(e_0), states#(e_1))  )) + product(apply(edges(T2), e -> m_(e, states#(e_0), states#(e_1)) )))
+				(r_(states#rho))*(t*product(apply(edges(T1), e -> m_(e, states#(e_0), states#(e_1))  )) + (1-t)*product(apply(edges(T2), e -> m_(e, states#(e_0), states#(e_1)) )))
 				)
 			);
+
+	if not opts.UseStochasticParameters then return map(R, S, phi);
+
+	subRules := flatten for e in edges(N) list(
+
+		for i from 0 to k-1 list(
+
+			m_(e, i, k-1) => (1 - sum apply(k-1, j -> m_(e, i, j)))
+		)
+	);
+
+	subRules = append(subRules, r_(k-1) => 1 - sum apply(k-1, i -> r_i));
+
+	phi = apply(phi, i -> s*sub(i, subRules));
 
 	return map(R, S, phi)
 	);

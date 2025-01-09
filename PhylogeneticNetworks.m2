@@ -51,7 +51,7 @@ generate4Cycles = () -> (
 probabilisticMembershipTest = (t, f, phi) -> (
 
 
-	FF := ZZ/nextPrime(1000000);
+	FF := ZZ/nextPrime(32003);
 
 	for t from 1 to t do(
 

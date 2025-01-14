@@ -22,7 +22,7 @@ generate4Cycles = () -> (
 
 	N := digraph(toList(1..8), {{5,1}, {6,2}, {7,3}, {8,4}, {6,5}, {8,5}, {7,8}, {7,6}});
 
-	adj := mutableMatrix adjacencyMatrix N;
+	adj := adjacencyMatrix N;
 
 	perms := permutations({0,1,2,3});
 
@@ -37,7 +37,7 @@ generate4Cycles = () -> (
 		sigma
 		);
 
-	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), matrix columnPermute(adj, 0, sigma));
+	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), adj_(sigma|{4,5,6,7}));
 
 	return fourLeafNets
 	)

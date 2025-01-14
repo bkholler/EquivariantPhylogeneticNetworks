@@ -42,6 +42,31 @@ generate4Cycles = () -> (
 	return fourLeafNets
 	)
 
+-- generates all 12 distinct 4-cycle networks and returns a pair consisting of the network and its corresponding permutation
+generate4CyclesWithPerms = () -> (
+
+	N := digraph(toList(1..8), {{5,1}, {6,2}, {7,3}, {8,4}, {6,5}, {8,5}, {7,8}, {7,6}});
+
+	adj := adjacencyMatrix N;
+
+	perms := permutations({0,1,2,3});
+
+	permsModLeafSwitch := while #perms > 0 list(
+
+		sigma := perms_0;
+
+		perms = delete(sigma_{0,3,2,1}, perms);
+		perms = delete(sigma, perms);
+
+		
+		sigma
+		);
+
+	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), adj_(sigma|{4,5,6,7}));
+
+	return fourLeafNets
+	)
+
 
 -- t, an integer
 -- f, a polynomial in the source of phi

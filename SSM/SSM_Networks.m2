@@ -11,28 +11,33 @@ ssmStates = n -> (
 
 -- N, a digraph representing a phylogenetic network
 -- creates the ring of fourier parameters for the SSM model on N
-ssmParameterRing = method(Options => {aVariableName => "a"})
+ssmParameterRing = method(Options => {aVariableName => "a", CoefficientRing => QQ})
 ssmParameterRing Digraph := Ring => opts -> N -> (
 
   L := sort delete(null, apply(vertices(N), i -> if degree(N, i) == 1 then i));
   n := #L;
   a := getSymbol opts.aVariableName;
+  KK := opts.CoefficientRing;
 
-  return QQ[s, t, flatten for e in edges(N) list a_(e, 0, 0, 0)..a_(e, 1, 1, 1)];
+  return KK[s, t, flatten for e in edges(N) list a_(e, 0, 0, 0)..a_(e, 1, 1, 1)];
   )
 
 
 -- T, a digraph representing a phylogenetic tree
 -- creates the parametrization of the strand symmetric model on T in the fourier coordinates
 -- By default the stochastic restrictions are enforced but the parametrization is re-homogenized 
-ssmTreeParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
+ssmTreeParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true, CoefficientRing => QQ})
 ssmTreeParametrization Digraph := RingMap => opts -> T -> (
 
+  -- compute internal vertices, leaves, and displayed trees
   int := sort internalVertices(T);
   L := sort leaves(graph(graph(T)));
   n := #L;
-  R := ssmParameterRing(T);
-  S := if opts.SourceRing === null then QQ[apply(ssmStates(n), i -> q_i)] else opts.SourceRing;
+
+  -- make source and target rings
+  KK := opts.CoefficientRing;
+  R := ssmParameterRing(T, CoefficientRing => KK);
+  S := if opts.SourceRing === null then KK[apply(ssmStates(n), i -> q_i)] else opts.SourceRing;
 
   phi := for leafState in ssmStates(n) list(
 
@@ -59,7 +64,7 @@ ssmTreeParametrization Digraph := RingMap => opts -> T -> (
 -- N, a digraph representing a phylogenetic network
 -- creates the parametrization of the strand symmetric model on N in the fourier coordinates
 -- By default the stochastic restrictions are enforced but the parametrization is re-homogenized 
-ssmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
+ssmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true, CoefficientRing => QQ})
 ssmNetworkParametrization (List, Digraph) := RingMap => opts -> (reticulationEdges, N) -> (
 
   -- compute internal vertices, leaves, and displayed trees
@@ -70,8 +75,9 @@ ssmNetworkParametrization (List, Digraph) := RingMap => opts -> (reticulationEdg
   T2 := deleteEdges(N, {retEdges_1});
 
   -- make source and target rings
-  R := ssmParameterRing(N);
-  S := if opts.SourceRing === null then QQ[apply(ssmStates(n), i -> q_i)] else opts.SourceRing;
+  KK := opts.CoefficientRing;
+  R := ssmParameterRing(N, CoefficientRing => KK);
+  S := if opts.SourceRing === null then KK[apply(ssmStates(n), i -> q_i)] else opts.SourceRing;
   
 	phi := for leafState in ssmStates(n) list(
 

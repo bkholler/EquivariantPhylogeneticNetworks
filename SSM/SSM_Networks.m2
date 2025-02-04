@@ -18,12 +18,13 @@ ssmParameterRing Digraph := Ring => opts -> N -> (
   n := #L;
   a := getSymbol opts.aVariableName;
 
-  return QQ[s, t, flatten for e in edges(T) list a_(e, 0, 0, 0)..a_(e, 1, 1, 1)];
+  return QQ[s, t, flatten for e in edges(N) list a_(e, 0, 0, 0)..a_(e, 1, 1, 1)];
   )
 
 
 -- T, a digraph representing a phylogenetic tree
 -- creates the parametrization of the strand symmetric model on T in the fourier coordinates
+-- By default the stochastic restrictions are enforced but the parametrization is re-homogenized 
 ssmTreeParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
 ssmTreeParametrization Digraph := RingMap => opts -> T -> (
 
@@ -54,16 +55,24 @@ ssmTreeParametrization Digraph := RingMap => opts -> T -> (
   return map(R, S, phi)
   );
 
-ssmNetParam = (N, retEdges) -> (
 
+-- N, a digraph representing a phylogenetic network
+-- creates the parametrization of the strand symmetric model on N in the fourier coordinates
+-- By default the stochastic restrictions are enforced but the parametrization is re-homogenized 
+ssmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
+ssmNetworkParametrization (List, Digraph) := RingMap => opts -> (reticulationEdges, N) -> (
+
+  -- compute internal vertices, leaves, and displayed trees
 	int := sort internalVertices(N);
   L := sort delete(null, apply(vertices(N), i -> if degree(N, i) == 1 then i));
   n := #L;
-  S := ssmParamRing(N, "a");
-  m := getSymbol "a";
   T1 := deleteEdges(N, {retEdges_0});
   T2 := deleteEdges(N, {retEdges_1});
 
+  -- make source and target rings
+  R := ssmParameterRing(N);
+  S := if opts.SourceRing === null then QQ[apply(ssmStates(n), i -> q_i)] else opts.SourceRing;
+  
 	phi := for leafState in ssmStates(n) list(
 
 	    upperInd := apply(leafState, k -> k_0);
@@ -73,21 +82,28 @@ ssmNetParam = (N, retEdges) -> (
 
 	      state := hashTable(apply(L, i -> i => lowerInd_(i-1)) | apply(int, i -> i => intState_(i - #L - 1)));
 
-
-	      phi1 := edges(T1) / (e -> try (m_(e, sum(apply(leafDescendants(T1, L, e_1), l -> upperInd_(l-1))) % 2, state#(e_1), state#(e_0)))_S) // product;
-	      phi2 := edges(T2) / (e -> try (m_(e, sum(apply(leafDescendants(T2, L, e_1), l -> upperInd_(l-1))) % 2, state#(e_1), state#(e_0)))_S) // product;
+	      phi1 := edges(T1) / (e -> (a_(e, sum(apply(leafDescendants(e_1, L, T1), l -> upperInd_(l-1))) % 2, state#(e_0), state#(e_1)))) // product;
+	      phi2 := edges(T2) / (e -> (a_(e, sum(apply(leafDescendants(e_1, L, T2), l -> upperInd_(l-1))) % 2, state#(e_0), state#(e_1)))) // product;
 
 	      (phi1+phi2)
 	      )
-  
     	);
 
-	return phi;
+	if not opts.UseStochasticParameters then return map(R, S, phi);
+
+  subRules := flatten for e in edges(N) list {a_(e, 0, 0, 1) => 1 - a_(e, 0, 0, 0)};
+  phi = apply(phi, i -> s*sub(i, subRules));
+
+  return map(R, S, phi)
 	);
 
 
-flat = (n, A, B, S) -> (
+-- A,B, a pair of list which form a bipartition of [n] representing a split
+-- S, the ring of the Strand-Symmetric model on a n-leaf network
+-- returns the flattening matrix corresponding to the partition A|B
+flat = (A, B, S) -> (
 
+    n := #(last baseName S_0);
     indA := ssmStates(#A);
     indB := ssmStates(#B);
     x := first baseName S_0;
@@ -102,34 +118,4 @@ flat = (n, A, B, S) -> (
             )
         );
     );
-
-
-
-interleave = (curInd, pos, inds) -> (
-
-  liftInd := curInd;
-
-  for i from 0 to #pos - 1 do(
-
-    liftInd = insert(pos_i, inds_i, liftInd);
-    );
-
-  return liftInd;
-  );
-
-liftPoly = (pos, inds, f, oldR, newR) -> (
-
-  oldInds := gens(oldR) / (i -> last baseName i);
-  newInds := oldInds / (i -> interleave(i, pos, inds));
-
-  x := first baseName newR_0;
-  newVars := apply(newInds, i -> (x_i)_newR);
-
-  subMap := map(newR, oldR, newVars);
-
-  return subMap(f)
-  );
-
-
-
 

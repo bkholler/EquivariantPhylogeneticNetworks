@@ -69,7 +69,7 @@ gmmTreeParametrization (Number, Digraph) := RingMap => opts -> (k, T) -> (
 -- k, the number of states for the general Markov model
 -- N, a digraph, representing a phylogenetic network
 -- reticulationEdges, a list of edges of N, in the form {i, j}, representing the reticulation edges of N
-gmmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
+gmmNetworkParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true, ConstractReticulationLeaf => true})
 gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reticulationEdges, N) -> (
 
 	-- compute internal vertices, leaves, and root
@@ -97,7 +97,14 @@ gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reti
 
 	if not opts.UseStochasticParameters then return map(R, S, phi);
 
+	-- enforce stochastic restrictions on the transition matrices
+	retNode := last first reticulationEdges;
+	retLeaf := first toList((children(N, retNode)));
+	retLeafEdge := {retNode, retLeaf};
+
 	subRules := flatten for e in edges(N) list(
+
+		if e == retLeafEdge then continue;
 
 		for i from 0 to k-1 list(
 
@@ -105,7 +112,12 @@ gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reti
 		)
 	);
 
+	-- enforce stochastic restrictions on the root distributions
 	subRules = append(subRules, r_(k-1) => 1 - sum apply(k-1, i -> r_i));
+
+	-- contract the reticulation leaf by setting its transition matrix to the identity
+	
+	subRules = subRules | (flatten for i from 0 to k-1 list for j from 0 to k-1 list if i == j then m_(retLeafEdge, i, j) => 1 else m_(retLeafEdge, i, j) => 0);
 
 	phi = apply(phi, i -> s*sub(i, subRules));
 

@@ -22,8 +22,6 @@ generate4Cycles = () -> (
 
 	N := digraph(toList(1..8), {{5,1}, {6,2}, {7,3}, {8,4}, {6,5}, {8,5}, {7,8}, {7,6}});
 
-	adj := adjacencyMatrix N;
-
 	perms := permutations({0,1,2,3});
 
 	permsModLeafSwitch := while #perms > 0 list(
@@ -37,7 +35,9 @@ generate4Cycles = () -> (
 		sigma
 		);
 
-	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), adj_(sigma|{4,5,6,7}));
+	oldEdges := {{6,5}, {8,5}, {7,8}, {7,6}};
+
+	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), oldEdges|apply({5,6,7,8}, {1,2,3,4}_sigma, (i, j) -> {i, j}));
 
 	return fourLeafNets
 	)
@@ -47,8 +47,6 @@ generate4CyclesWithPerms = () -> (
 
 	N := digraph(toList(1..8), {{5,1}, {6,2}, {7,3}, {8,4}, {6,5}, {8,5}, {7,8}, {7,6}});
 
-	adj := adjacencyMatrix N;
-
 	perms := permutations({0,1,2,3});
 
 	permsModLeafSwitch := while #perms > 0 list(
@@ -62,7 +60,9 @@ generate4CyclesWithPerms = () -> (
 		sigma
 		);
 
-	fourLeafNets := for sigma in permsModLeafSwitch list digraph(toList(1..8), adj_(sigma|{4,5,6,7}));
+	oldEdges := {{6,5}, {8,5}, {7,8}, {7,6}};
+
+	fourLeafNets := for sigma in permsModLeafSwitch list (sigma, digraph(toList(1..8), oldEdges|apply({5,6,7,8}, {1,2,3,4}_sigma, (i, j) -> {i, j})));
 
 	return fourLeafNets
 	)

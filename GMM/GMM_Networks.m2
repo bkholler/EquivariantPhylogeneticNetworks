@@ -125,6 +125,78 @@ gmmNetworkParametrization (Number, List, Digraph) := RingMap => opts -> (k, reti
 	);
 
 
+-- N, a phylogenetic network
+-- Creates the ring of parameters whose variables are the root parameters and entries of the transition matrices
+gmmReParameterRing = method(Options => {rVariableName => "r", mVariableName => "m", bVariableName => "b"})
+gmmReParameterRing (Number, Digraph) := Ring => opts -> (k, T) -> (
+
+	r := getSymbol opts.rVariableName; 
+	m := getSymbol opts.mVariableName;
+	b := getSymbol opts.bVariableName;
+
+	indSet := flatten for e in edges(T) list flatten for i from 0 to k-1 list for j from 0 to k-1 list (toList(e), i, j);
+	bVars := (flatten flatten for x from 0 to k-1 list for i from 0 to k-1 list b_(0, i, x)) | (flatten flatten for x from 0 to k-1 list for j from 1 to k-1 list b_(j, 0, x));
+
+	return R := QQ[s, apply(k, i -> r_i) | apply(indSet, i -> m_i) | bVars];
+	);
+
+
+-- k, the number of states for the general Markov model
+-- N, a digraph, representing a phylogenetic network
+-- reticulationEdges, a list of edges of N, in the form {i, j}, representing the reticulation edges of N
+gmmNetworkReParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
+gmmNetworkReParametrization (Number, List, Digraph) := RingMap => opts -> (k, reticulationEdges, N) -> (
+
+	-- compute internal vertices, leaves, and root
+	-- also compute underlying trees
+	int := sort internalVertices(N);
+	L := sort delete(null, vertices(N) / (i -> if degree(N, i) == 1 then i));
+	rho := (delete(null, apply(int, i -> if degreeIn(N, i) == 0 then i)))_0;
+	n := #L;
+	retVert := (reticulationEdges / set // intersect // toList )_0;
+	retLeaf := (toList children(N, retVert))_0;
+	retParents := sort toList parents(N, retVert);
+	T := deleteEdges(N, reticulationEdges|{{retVert, retLeaf}});
+	
+
+	-- make source and target rings
+	R := gmmReParameterRing(k, T);
+	S := if opts.SourceRing === null then pRing(k, n) else opts.SourceRing;
+
+	phi := for leafState in toList((n:0)..(n:k-1)) list(
+
+			sum for intState in toList((#int:0)..(#int:k-1)) list(
+
+				states := hashTable(apply(L, leafState, (i,j) -> i => j) | apply(int, intState, (i,j) -> i => j));
+
+				(r_(states#rho))*product(apply(edges(T), e -> m_(e, states#(e_0), states#(e_1))))*(b_(states#(retParents_0), 0, states#retLeaf) + b_(0, states#(retParents_1),states#retLeaf)) 
+				)
+			);
+
+	if not opts.UseStochasticParameters then return map(R, S, phi);
+
+	-- enforce stochastic restrictions on the transition matrices
+	subRules := flatten for e in edges(T) list(
+
+		for i from 0 to k-1 list(
+
+			m_(e, i, k-1) => (1 - sum apply(k-1, j -> m_(e, i, j)))
+		)
+	);
+
+	-- enforce stochastic restrictions on the root distributions
+	subRules = append(subRules, r_(k-1) => 1 - sum apply(k-1, i -> r_i));
+
+	-- enforce the stochastic restrictions on the conditional distribution of 
+	subRules = subRules | for i from 0 to k-1 list b_(i, 0, k-1) => (1 - sum apply(k-1, j -> b_(i, 0, j)));
+	subRules = subRules | for i from 0 to k-1 list b_(0, i, k-1) => (1 - sum apply(k-1, j -> b_(0, i, j)));
+
+	phi = apply(phi, i -> s*sub(i, subRules));
+
+	return map(R, S, phi)
+	);
+
+
 -- A,B, a pair of list which form a bipartition of [n] representing a split
 -- S, the ring of the phylogenetic Markov model on a n-leaf network with k states
 -- returns the flattening matrix corresponding to the partition A|B

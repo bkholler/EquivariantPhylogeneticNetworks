@@ -12,9 +12,9 @@ matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -
     -- Pick a coefficient field over which we can do amplification by independent trials
     -- Then specialize the jacobian by plugging in random parameter values over the finite field
     alpha := if opts.MaxEntryDegree === null then max(flatten(apply(flatten entries J1, degree))) else opts.MaxEntryDegree;
-    p := nextPrime(d*alpha + 1);
-    KK := ZZ/p;
-    l := ceiling(log(2, opts.Tolerance)/log(2, alpha/p));
+    pp := nextPrime(d*alpha + 10^6);
+    KK := ZZ/pp;
+    l := ceiling(log(2, opts.Tolerance)/log(2, alpha/pp));
     numJ1 := specialize(J1, CoefficientRing => KK);
     numJ2 := specialize(J2, CoefficientRing => KK);
 
@@ -30,15 +30,15 @@ matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -
         r1 := rank(numJ1_S);
         r2 := rank(numJ2_S);
         
-        -- check if the rank differes
+        -- check if the rank differs
         if r1 < r2 then(
             if opts.Verbose then print("Found potential certificate. Beginning verification over finite field.");
-            if schwartzZippelCertify(p, l, r2, J2_S) then return {r1, r2, S} else if opts.Verbose then print("Potential certificate was erroneous. Restarting certificate search.");
+            if schwartzZippelCertify(pp, l, r1, J1_S) then return {r1, r2, S} else if opts.Verbose then print("Potential certificate was erroneous. Restarting certificate search.");
         );
 
-        if r1 < r2 then(
+        if r1 > r2 then(
             if opts.Verbose then print("Found potential certificate. Beginning verification over finite field.");
-            if schwartzZippelCertify(p, l, r1, J1_S) then return {r1, r2, S} else if opts.Verbose then print("Potential certificate was erroneous. Restarting certificate search.");
+            if schwartzZippelCertify(pp, l, r2, J2_S) then return {r1, r2, S} else if opts.Verbose then print("Potential certificate was erroneous. Restarting certificate search.");
         );
     );
 )

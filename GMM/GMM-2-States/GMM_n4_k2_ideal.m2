@@ -32,7 +32,7 @@ I == minors(2, psi(A))
 -- verify that the polynomials in I vanish on the 2-state GMM model
 -- First, we apply phi and psi to A to get a matrix with entries in the parameter space of the model. We then verify that it has rank 1, thus all of the 2x2 minors are indeed in the kernel
 N = digraph(toList(1..8), {{5,1}, {6,2}, {7,3}, {8,4}, {6,5}, {8,5}, {7,8}, {7,6}});
-phi = gmmNetworkParametrization(k, {{6, 5}, {8, 5}}, N, SourceRing => S);
+phi = gmmNetworkReParametrization(k, {{6, 5}, {8, 5}}, N, SourceRing => S);
 
 -- The code below takes about 20 seconds
 rank(phi(psi(A)))

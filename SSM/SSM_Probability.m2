@@ -16,10 +16,9 @@ ssmParameterRing Digraph := Ring => opts -> N -> (
 	);
 
 
-makeSSMHash = N -> (
+makeSSMHash = (N, R) -> (
 
 	edgeHash := new MutableHashTable;
-	R := ssmParameterRing(N);
 
 	for e in edges(N) do(
 
@@ -47,8 +46,8 @@ ssmTreeParametrization Digraph := RingMap => opts -> T -> (
 	
 
 	-- make source and target rings
-	M := makeSSMHash(T);
-	R := ring (values M)_0;
+	R := ssmParameterRing(T);
+	M := makeSSMHash(T, R);
 	k := numcols (values M)_0;
 	S := if opts.SourceRing === null then pRing(k, n) else opts.SourceRing;
 
@@ -98,8 +97,8 @@ ssmNetworkParametrization (List, Digraph) := RingMap => opts -> (reticulationEdg
 	n := #L;
 
 	-- make source and target rings
-	M := makeSSMHash(N);
-	R := ring (values M)_0;
+	R := ssmParameterRing(N);
+	M := makeSSMHash(N, R);
 	k := numcols (values M)_0;
 	S := if opts.SourceRing === null then pRing(k, n) else opts.SourceRing;
 

@@ -90,6 +90,21 @@ probabilisticMembershipTest = (t, f, phi) -> (
 	)
 
 
+-- t, an integer
+-- phi, a ring map 
+-- samples t points from the image of phi over a finite field
+sampleImage = (t, phi) -> (
+
+	KK := ZZ/nextPrime(32003);
+
+	return for t from 1 to t list(
+
+		params := apply(gens target phi, i -> i => random(KK));
+		pt := apply(gens source phi, j -> j => sub(phi(j), params))
+	);
+)
+
+
 -- builds a polynomial in the minors of flat1 and flat2 correspond to inds with coefficients given by coeffs
 fillTemplate = (inds, coeffs, flat1, flat2) -> (
 

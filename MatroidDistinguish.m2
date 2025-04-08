@@ -1,3 +1,4 @@
+-- evaluate a matrix at a random point over the field opts.CoefficientRing
 specialize = method(Options => {CoefficientRing => ZZ/32003})
 specialize Matrix := Matrix => opts -> A -> (
 
@@ -6,6 +7,8 @@ specialize Matrix := Matrix => opts -> A -> (
     return sub(A, apply(gens R, i -> i => random(KK)));
 )
 
+
+-- implementation of Algorithm 3.6 from https://arxiv.org/pdf/1909.13754
 matroidDistinguish = method(Options => {Dim1 => null, Dim2 => null, MaxEntryDegree => null, Tolerance => 1*10^(-10), Verbose => true})
 matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -> (t, d, J1, J2) -> (
 
@@ -43,7 +46,8 @@ matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -
     );
 )
 
--- 
+
+-- checks if the matrix J has rank at most r, l times over the finite field ZZ.p
 schwartzZippelCertify = (p, l, r, J) -> (
 
     KK := ZZ/p;
@@ -51,4 +55,34 @@ schwartzZippelCertify = (p, l, r, J) -> (
     for i from 1 to l do if rank(specialize(J, CoefficientRing => KK)) > r then return false;
 
     return true
+)
+
+
+-- creates a new matrix which encodes the sparsity pattern of the input matrix
+supportMatrix = A -> (
+
+    return matrix for i from 0 to numrows(A)-1 list for j from 0 to numcols(A)-1 list if A_(i, j) != 0 then 1 else 0
+)
+
+
+
+-- returns the indices of the circuit corresponding to the basis of the matroid of A given by the first r entries of sigma
+-- and the additional column given by ind
+fundamentalCircuit = (r, sigma, ind, A) -> (
+
+	A' := A_sigma;
+	A' = reducedRowEchelonForm(A');
+	if rank(submatrix(A', , toList(0..r-1))) != r then error "matrix is not in appropriate form";
+	C := submatrix(A', ,toList(0..r-1))|submatrix(A', , {ind});
+	K := flatten entries gens ker C;
+
+	return delete(null, apply(drop(K, -1), take(sigma, r), (i, j) -> if i != 0 then j) | {sigma_ind})
+)
+
+
+-- removes all zero rows from the matrix A
+nonZeroRows = A -> (
+
+	keepRows := for i from 0 to numrows(A)-1 list if A^{i} != 0 then i else continue;
+	return A^keepRows;
 )

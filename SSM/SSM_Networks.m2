@@ -334,7 +334,7 @@ ssmFourierNetworkParametrization (List, Digraph) := RingMap => opts -> (reticula
 	(M, H) := (coefficients matrix {probL});
 	H = transpose sub(H, KK);
 	fourierImages := delete(0_(R'), flatten entries(H*transpose(matrix phi))) / transitionToFourier;
-	S := KK[ssmStates(n) / (i -> q_i)];
+	S := if opts.SourceRing === null then KK[ssmStates(n) / (i -> q_i)] else opts.SourceRing;
 
 	if not opts.UseStochasticParameters then return map(R, S, fourierImages);
 

@@ -7,7 +7,7 @@ N2 = digraph({1,2,3,4,5,6}, {{6, {5, 4, 3}}, {5, {4, 1}}, {4, {2}}})
 N3 = digraph({1,2,3,4,5,6}, {{6, {5, 4, 1}}, {5, {4, 2}}, {4, {3}}})
 
 -- make rings and maps
-KK = 
+KK = QQ;
 S = KK[ssmStates(n) / (i -> q_i)]
 retEdges = {{6, 4}, {5, 4}}
 phi1 = ssmFourierNetworkParametrization(retEdges, N1, SourceRing => S, UseStochasticParameters => true);
@@ -17,8 +17,11 @@ phi3 = ssmFourierNetworkParametrization(retEdges, N3, SourceRing => S, UseStocha
 -- load the ideal for N1 which we have already computed
 load("SSM_n3_ideal.m2")
 -- check that the polynomials in I1 evaluate to zero under phi1
+-- then check that I1 is prime and dimension 30
 -- this takes about 60 seconds
 time all(I1_*, f -> phi1(f) == 0)
+isPrime I1
+dim(I1) == 30
 
 -- now we sample points from the variety of N2 and N3
 samples1 = sampleImage(10, phi1);

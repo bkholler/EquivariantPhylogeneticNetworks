@@ -28,7 +28,7 @@ samples1 = sampleImage(10, phi1);
 samples2 = sampleImage(10, phi2);
 samples3 = sampleImage(10, phi3);
 
--- the following code shows that 
-any(samples1, pt -> sub(I1_0, pt) != 0) -- true which we already know from the above
-any(samples2, pt -> sub(I1_0, pt) != 0) -- false, implies M_N1 != M_N2
-any(samples3, pt -> sub(I1_0, pt) != 0) -- false, implies M_N1 != M_N3
+-- the following code shows that M_N1 != M_N2, M_N3
+any(samples1, pt -> sub(I1_0, pt) != 0) -- false, which we already know from the above
+any(samples2, pt -> sub(I1_0, pt) != 0) -- true, implies M_N1 != M_N2
+any(samples3, pt -> sub(I1_0, pt) != 0) -- true, implies M_N1 != M_N3

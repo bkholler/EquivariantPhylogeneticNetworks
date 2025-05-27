@@ -11,10 +11,13 @@ phi = gmmNetworkReParametrization(k, {{10, 6}, {7, 6}}, N, UseStochasticParamete
 J = jacobian matrix phi;
 
 -- this computes the rank of the jacobian with random parameter values many times
--- it is at least 19 and thus the model itself has dimension 18
+-- it is at least 19 and thus the model itself has dimension 18. this takes about 30 seconds
 tally apply(1000, i -> rank specialize J)
 
 
+-- we can also compute the ideal of this model over a finite field
+-- the resulting polynomials lie in the true ideal with high probability
+-- however we cannot verify that they generate the full ideal
 KK = ZZ/32003
 R = KK[gens target phi]
 S = KK[gens source phi]
@@ -28,7 +31,6 @@ A = transpose matrix for x in gens(S) list(
 
 B = submatrix'(A, toList(0..k-1),)
 
-
+-- this takes about 5 minutes
 G = componentsOfKernel(4, psi, UseInterpolation => true, Grading => B);
 I = ideal delete(null, flatten values G);
-dim I

@@ -16,6 +16,7 @@ fourSunlets = generate4Cycles()
 ret1Networks = select(fourSunlets, N -> member({5, 1}, edges(N)))
 (N1, N2, N3) = toSequence ret1Networks
 
+-- the following two lines which make the maps and jacobians take about 10-20 minutes to run
 -- make a hash table where the keys are the four sunlets and the values are their ideal, created by permuting the indices of the original ideal
 fourSunletMaps = hashTable for N in ret1Networks list {N, gmmNetworkReParametrization(k, {{6, 5}, {8, 5}}, N)};
 
@@ -42,7 +43,7 @@ rank specialize (fourSunletJacs#N3)_C
 alpha = max(flatten(apply(flatten entries fourSunletJacs#N1, degree)));
 p = nextPrime((#C)*alpha + 10^10);
 KK = ZZ/p;
-l = ceiling(log(2, 10^(-30))/log(2, alpha/pp));
+l = ceiling(log(2, 10^(-30))/log(2, alpha/p));
 -- when the following function returns true, then the statement rank (fourSunletJac#N1)_C < #C
 -- holds with probability > 1 - 10^(-30)
 schwartzZippelCertify(p, l, #C, (fourSunletJacs#N1)_C)

@@ -14,4 +14,6 @@ J = jacobian matrix phi;
 nJ = specialize J
 
 -- check that every set of size 14 is a basis
+-- this shows that the algebraic matroid of the 4-sunlet network is the uniform matroid
+-- thus the matroid-based approach cannot be used to distinguish these networks
 all(subsets(16, 14), A -> rank nJ_A == 14)

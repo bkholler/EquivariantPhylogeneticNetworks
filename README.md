@@ -1,0 +1,4 @@
+# $G$-Equivariant Phylogenetic Networks
+
+This repository contains the supplementary material for the paper [Phylogenetic Networks Evolving under $G$-Equivariant Models]. It primarily consists of functions for creating the parametrization of many classic $G$-equivariant phylogenetic models such as the general Markov model, strand symmetric model, and Cavendar-Farris-Neyman model on a sunlet network. The code for each of these models can be found in the folders GMM, SSM, and CFN respectively.
+In addition to the above folders, the file **PhylogeneticNetworks.m2** contains some basic combinatorial functions which are useful when constructing the parametrization of a phylogenetic network model and the file **MatroidDistinguish.m2** contains an implementation of Algorithm 3.6 in [Identifiability in Phylogenetics using Algebraic Matroids](https://arxiv.org/abs/1909.13754).

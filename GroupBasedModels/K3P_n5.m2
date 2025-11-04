@@ -2,7 +2,7 @@ load "GroupBasedNetworks.m2"
 
 -- make our map which parametrizes the vanishing ideal of the 4-sunlet
 n = 5
-M = K3Pmodel
+M = CFNmodel
 S = qRing(n, M);
 sunletImages = sunletParam(n, M);
 R = ring first sunletImages;
@@ -24,7 +24,7 @@ psiT = map(RT, S, for i to numcols(A)-1 list RT_(flatten entries A_i));
 
 -- get the generators which are not in IT
 -- this list is non empty and thus we see IN \not \subset IT as needed
-distinguishGens = select(J_*, f -> psiT(f) != 0);
+distinguishGens = select(I_*, f -> psiT(f) != 0);
 tally(distinguishGens / degree)
 f = distinguishGens_0
 psiT(f)

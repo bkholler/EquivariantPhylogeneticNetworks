@@ -67,5 +67,5 @@ for i from 0 to 5 list(
 	rets := retEdgeSets_i;
 	cycleImages := oneCycleNetworkParam(rets, N, M);
 	psi := map(ring first cycleImages, S, cycleImages);
-	all(I_*, f -> psi(f) == 0)
+	any(I_*, f -> psi(f) != 0)
 )

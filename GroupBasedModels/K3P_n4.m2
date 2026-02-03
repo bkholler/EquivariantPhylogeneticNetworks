@@ -1,43 +1,23 @@
 load "GroupBasedNetworks.m2"
 
-
 -- make our map which parametrizes the vanishing ideal of the 4-sunlet
 n = 4
-M = K2Pmodel
+M = K3Pmodel
 S = qRing(n, M);
 sunletImages = sunletParam(n, M);
 R = ring first sunletImages;
 psi = map(R, S, sunletImages);
 
 
--- make a ring which only keeps the unique variables modulo linear relations
-uniqueImPos = apply(unique sunletImages, i -> position(sunletImages, j -> j == i))
---KK = ZZ/nextPrime(32003)
-KK = QQ
-R' = KK[gens R];
-S' = KK[(gens S)_uniqueImPos];
-
-
-linRels = ideal flatten for i in uniqueImPos list(
-
-	f := sunletImages_i;
-	allPos := positions(sunletImages, g -> g == f);
-	for j in allPos list if i != j then S_i - S_j else continue
-)
-
-
 -- make our map and run MultigradedImplicitization
--- uncomment the following code to compute J as we originally did
--- this takes about 20 minutes
-
--- phi = map(R', S', apply(sunletImages_uniqueImPos, i -> sub(i, R')));
--- Hphi = componentsOfKernel(4, phi, UseInterpolation => false);
--- I = sub(ideal delete(null, flatten values Hphi), S);
--- J = ideal select(I_*, f -> psi(f) == 0) + linRels;
+-- uncomment the following code to compute J as we originally did which takes about 4 hours
+-- H = componentsOfKernel(4, psi, UseInterpolation => false);
+-- J = sub(ideal delete(null, flatten values H), S);
 
 -- this load the generators of ker(psi) = I_{S_5} which we already computed
 use S;
-load("K2P_n4_d4_sunlet_gens.m2");
+load("K3P_n4_d4_sunlet_gens.m2");
+
 
 -- we can quickly check that they all do lie in the kernel
 all(J_*, f -> psi(f) == 0)
@@ -64,8 +44,7 @@ retEdgeSets = {
 }
 
 
--- It suffices to check that there is at least 1 polynomial in J which is not in the vanishing ideal of the above 6 network models
--- the code below verifies this is indeed the case
+-- We know that J \not \subset I so it suffices to check that I \not \subset J
 for i from 0 to 5 list(
 
 	N := networks_i;

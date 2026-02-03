@@ -2,7 +2,7 @@ load "GroupBasedNetworks.m2"
 
 -- make our map which parametrizes the vanishing ideal of the 4-sunlet
 n = 5
-M = CFNmodel
+M = K3Pmodel
 S = qRing(n, M);
 sunletImages = sunletParam(n, M);
 R = ring first sunletImages;

@@ -28,7 +28,7 @@ linRels = ideal flatten for i in uniqueImPos list(
 -- make our map and run MultigradedImplicitization
 -- this should only take a few seconds since we can distinguish with quadratics
 phi = map(R', S', apply(sunletImages_uniqueImPos, i -> sub(i, R')));
-Hphi = componentsOfKernel(2, phi, UseInterpolation => false);
+Hphi = componentsOfKernel(3, phi, UseInterpolation => false);
 I = sub(ideal delete(null, flatten values Hphi), S);
 J = ideal select(I_*, f -> psi(f) == 0) + linRels;
 
@@ -46,3 +46,13 @@ distinguishGens = select(J_*, f -> psiT(f) != 0);
 tally(distinguishGens / degree)
 f = distinguishGens_0
 psiT(f)
+
+
+-- now we distinguish 
+N3 = digraph(toList(1..10), {{6, 1}, {6, 8}, {7, 6}, {7, 2}, {7, 8}, {8, 9}, {9, 3}, {9, 10}, {10, 4}, {10, 5}})
+imagesN3 = oneCycleNetworkParam({{6, 8}, {7, 8}}, N3, M);
+phiN3 = map(ring imagesN3_0, S, imagesN3);
+distinguishGensN3 = select(J_*, f -> phiN3(f) != 0);
+tally(distinguishGensN3 / degree)
+f = distinguishGensN3_0
+phiN3(f)

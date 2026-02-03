@@ -34,3 +34,17 @@ B = submatrix'(A, toList(0..k-1),)
 -- this takes about 5 minutes
 G = componentsOfKernel(4, psi, UseInterpolation => true, Grading => B);
 I = ideal delete(null, flatten values G);
+
+
+-- lastly, we check that the ideal of the 5 sunlet is not contained in that of the "bad" tree as described in Proposition 6.5
+T = digraph(toList(1..8), {{8, 6}, {8, 7}, {8, 1}, {6, 2}, {6, 3}, {7, 4}, {7, 5}})
+phiT = gmmTreeParametrization(k, T, SourceRing => S);
+
+-- Despite the name, when probabilisticMembershipTest returns false then it is true that f \notin \ker(\phi) symbolically
+-- the output is only probabilistic when checking that it does belong to the ideal
+distinguishGens = select(I_*, f -> not probabilisticMembershipTest(10, f, phiT));
+
+
+-- we do a quick symbolic check to make sure one of the generators we found is indeed in ker(phi)
+f = sub(distinguishGens_0, source phi)
+phi(f)

@@ -1,5 +1,5 @@
-load("../PhylogeneticNetworks.m2")
-load("../MatroidDistinguish.m2")
+load("../../PhylogeneticNetworks.m2")
+load("../../MatroidDistinguish.m2")
 -- This loads our new package which contains our implementation of Algorithm 1
 needsPackage "MultigradedImplicitization"
 

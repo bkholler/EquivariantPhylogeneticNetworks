@@ -35,6 +35,7 @@ retEdgeSets = {
 }
 
 
+-- collect identifiability results in a hash table
 idHash = new MutableHashTable;
 
 -- We know that J \not \subset I so it suffices to check that I \not \subset J

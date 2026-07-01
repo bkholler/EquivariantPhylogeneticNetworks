@@ -35,6 +35,8 @@ retEdgeSets = {
 }
 
 
+idHash = new MutableHashTable;
+
 -- We know that J \not \subset I so it suffices to check that I \not \subset J
 -- we do this by finding a set where Jphi drops rank but Jpsi does not
 for i from 0 to 5 list(
@@ -43,5 +45,5 @@ for i from 0 to 5 list(
     rets := retEdgeSets_i;
     psi := ssmFourierNetworkParametrization(retEdgeSets_0, networks_0, SourceRing => S, UseStochasticParameters => true);
     Jpsi = jacobian matrix psi;
-    matroidDistinguish(10000, 43, Jpsi, Jphi)
+    idHash#N = matroidDistinguish(1000000, 42, Jpsi, Jphi)
 )

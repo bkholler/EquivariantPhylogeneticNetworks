@@ -48,11 +48,25 @@ f = distinguishGens_0
 psiT(f)
 
 
--- now we distinguish 
-N3 = digraph(toList(1..10), {{6, 1}, {6, 8}, {7, 6}, {7, 2}, {7, 8}, {8, 9}, {9, 3}, {9, 10}, {10, 4}, {10, 5}})
-imagesN3 = oneCycleNetworkParam({{6, 8}, {7, 8}}, N3, M);
-phiN3 = map(ring imagesN3_0, S, imagesN3);
-distinguishGensN3 = select(J_*, f -> phiN3(f) != 0);
-tally(distinguishGensN3 / degree)
-f = distinguishGensN3_0
-phiN3(f)
+-- now we distinguish 5-leaf networks with a 3-cycle from the sunlet 
+networks = {
+    digraph(toList(1..10), {{6, 2}, {6, 8}, {7, 6}, {7, 1}, {7, 8}, {8, 9}, {9, 3}, {9, 10}, {10, 4}, {10, 5}}),
+    digraph(toList(1..10), {{6, 2}, {8, 6}, {7, 6}, {7, 1}, {7, 8}, {8, 9}, {9, 3}, {9, 10}, {10, 4}, {10, 5}}),
+    digraph(toList(1..10), {{6, 1}, {8, 6}, {7, 6}, {7, 2}, {7, 8}, {8, 9}, {9, 3}, {9, 10}, {10, 4}, {10, 5}})
+}
+
+retEdgeSets = {
+    {{6, 8}, {7, 8}},
+    {{7, 6}, {8, 6}},
+    {{7, 6}, {8, 6}}
+}
+
+
+for i from 0 to #networks - 1 list(
+
+	N := networks_i;
+	rets := retEdgeSets_i;
+	cycleImages := oneCycleNetworkParam(rets, N, M);
+	psi := map(ring first cycleImages, S, cycleImages);
+	any(I_*, f -> psi(f) != 0)
+)

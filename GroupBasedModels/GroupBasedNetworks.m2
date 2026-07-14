@@ -24,13 +24,15 @@ sunletParam = (n, M) -> (
 	R := QQ[apply(indR, k -> a_k) | apply(indR, k -> b_k)];
 	
 
-	images := for g in indS list(
+	images := for h in indS list(
 
-		aProd := product(apply(n, i -> a_{i+1, GH#(groupElToRep(g_i, M))}));
-		bProd1 := product(for j from 0 to #g - 2 list b_{j+1, GH#(groupElToRep(sum(g_(toList(0..j))), M))});
-    	bProd2 := product(for j from 1 to #g- 1 list b_{j+1, GH#(groupElToRep(sum(g_(toList(1..j))), M))});
-    	aProd*(bProd1 + bProd2)
-		);
+            g := toList h;
+	    aProd := product(apply(n, i -> a_{i+1, GH#(groupElToRep(g_i, M))}));
+	    bProd1 := product(for j from 0 to #g - 2 list b_{j+1, GH#(groupElToRep(sum(g_(toList(0..j))), M))});
+    	    bProd2 := product(for j from 1 to #g- 1 list b_{j+1, GH#(groupElToRep(sum(g_(toList(1..j))), M))});
+
+    	    aProd*(bProd1 + bProd2)
+	);
 
 	return images
 	)
@@ -56,11 +58,12 @@ oneCycleNetworkParam = (reticulationEdges, N, M) -> (
 	H1 = applyPairs(H1, (k, v) -> (position(edges(N), j -> j == k), v / (i -> i - 1)));
 	H2 = applyPairs(H2, (k, v) -> (position(edges(N), j -> j == k), v / (i -> i - 1)));
 
-	images := for g in indS list(
+	images := for h in indS list(
 
-		term1 := product apply(keys H1, i -> a_{i, GH#(groupElToRep((sum(g_(H1#i))), M))});
-		term2 := product apply(keys H2, i -> a_{i, GH#(groupElToRep((sum(g_(H2#i))), M))});
-		term1 + term2
+            g := toList h;
+            term1 := product apply(keys H1, i -> a_{i, GH#(groupElToRep((sum(g_(H1#i))), M))});
+            term2 := product apply(keys H2, i -> a_{i, GH#(groupElToRep((sum(g_(H2#i))), M))});
+            term1 + term2
 	);
 
 	return images

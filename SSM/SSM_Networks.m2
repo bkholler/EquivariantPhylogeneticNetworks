@@ -54,7 +54,7 @@ makeSSMHash = (N, R) -> (
 
 	edgeHash := new MutableHashTable;
 
-	for e in edges(T) do(
+	for e in edges(N) do(
 
 		M0 := matrix {{m_(e, 0, 0, 0), m_(e, 0, 0, 1)}, {m_(e, 0, 1, 0), m_(e, 0, 1, 1)}};
 		M1 := matrix {{m_(e, 1, 0, 0), m_(e, 1, 0, 1)}, {m_(e, 1, 1, 0), m_(e, 1, 1, 1)}};
@@ -99,8 +99,6 @@ makeSSMReHash = (reticulationEdges, N, R) -> (
 )
 
 
--- k, the number of states for the general Markov model
--- rho, a vertex of T, representing the root of T
 -- T, a digraph, representing a phylogenetic tree
 ssmTreeParametrization = method(Options => {SourceRing => null, UseStochasticParameters => true})
 ssmTreeParametrization Digraph := RingMap => opts -> T -> (

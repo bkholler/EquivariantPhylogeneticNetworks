@@ -25,7 +25,7 @@ matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -
     dim1 := if opts.Dim1 === null then max(apply(100, i -> rank specialize(J1))) else opts.Dim1;
     dim2 := if opts.Dim2 === null then max(apply(100, i -> rank specialize(J2))) else opts.Dim2;
 
-    if dim1 != dim2 then error("This method is currently only implemented for models of the same dimension");    
+    if dim1 > dim2 then error("This method assumes the first model has lower dimension");    
 
     for i from 1 to t do(
 
@@ -34,7 +34,7 @@ matroidDistinguish (Number, Number, Matrix, Matrix) := (Boolean, List) => opts -
         r2 := rank(numJ2_S);
         
         -- check if the rank differs
-        if r1 < r2 then(
+        if dim1 == dim2 and r1 < r2 then(
             if opts.Verbose then print("Found potential certificate. Beginning verification over finite field.");
             if schwartzZippelCertify(pp, l, r1, J1_S) then return {r1, r2, S} else if opts.Verbose then print("Potential certificate was erroneous. Restarting certificate search.");
         );

@@ -29,8 +29,8 @@ sunletParam = (n, M) -> (
 	images := for g in indS list(
 
 		aProd := product(apply(n, i -> a_(i+1, GH#(g_i))));
-		bProd1 := product(for j from 0 to #g - 2 list b_(j+1, GH#(sum(g_(toList(0..j))))));
-    	bProd2 := product(for j from 1 to #g- 1 list b_(j+1, GH#(sum(g_(toList(1..j))))));
+		bProd1 := product(for j from 0 to #g - 2 list b_(j+1, GH#(sum(toList g_(toList(0..j))))));
+    	bProd2 := product(for j from 1 to #g- 1 list b_(j+1, GH#(sum(toList g_(toList(1..j))))));
     	aProd*(bProd1 + bProd2)
 		);
 
